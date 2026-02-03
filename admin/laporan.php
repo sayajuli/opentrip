@@ -15,13 +15,23 @@ $judul_laporan = "";
 
 switch ($tipe) {
     case 'transaksi':
-        $judul_laporan = "Laporan Keuangan & Transaksi";
+        $judul_laporan = "Laporan Pendapatan (LUNAS)";
         $sql = "SELECT t.*, u.nama_lengkap, j.harga as harga_trip 
                 FROM transaksi t 
                 JOIN users u ON t.id_user = u.id_user 
                 JOIN jadwal j ON t.id_jadwal = j.id_jadwal
-                WHERE DATE(t.tanggal_booking) BETWEEN '$tgl_a' AND '$tgl_b'
+                WHERE (DATE(t.tanggal_booking) BETWEEN '$tgl_a' AND '$tgl_b')
+                AND t.status_bayar = 'lunas'
                 ORDER BY t.tanggal_booking DESC";
+                
+        $sql_lain = "SELECT status_bayar, COUNT(*) as jumlah, SUM(total_bayar) as potensi 
+                     FROM transaksi 
+                     WHERE (DATE(tanggal_booking) BETWEEN '$tgl_a' AND '$tgl_b') 
+                     AND status_bayar != 'lunas' 
+                     GROUP BY status_bayar";
+        $stmt_lain = $conn->prepare($sql_lain);
+        $stmt_lain->execute();
+        $rekap_lain = $stmt_lain->fetchAll(PDO::FETCH_ASSOC);
         break;
 
     case 'jadwal':
@@ -36,13 +46,11 @@ switch ($tipe) {
 
     case 'users':
         $judul_laporan = "Laporan Data Pengguna";
-        // User ga wajib pake tanggal, tapi kita kasih opsi filter created_at
         $sql = "SELECT * FROM users WHERE DATE(created_at) BETWEEN '$tgl_a' AND '$tgl_b' ORDER BY nama_lengkap ASC";
         break;
 
     case 'gunung':
         $judul_laporan = "Laporan Data Master Gunung";
-        // Gunung data statis, abaikan tanggal
         $sql = "SELECT * FROM gunung ORDER BY nama_gunung ASC";
         break;
     
@@ -56,7 +64,7 @@ switch ($tipe) {
         break;
 }
 
-// Eksekusi Query
+// Eksekusi Query Utama
 $stmt = $conn->prepare($sql);
 $stmt->execute();
 ?>
@@ -70,7 +78,6 @@ $stmt->execute();
     <div class="card border-0 shadow-sm rounded-4 mb-4">
         <div class="card-body bg-light rounded-4">
             <form method="GET" class="row g-3 align-items-end">
-                
                 <div class="col-md-3">
                     <label class="fw-bold mb-1">Jenis Laporan</label>
                     <select name="tipe" class="form-select">
@@ -81,7 +88,6 @@ $stmt->execute();
                         <option value="gunung" <?= $tipe=='gunung'?'selected':'' ?>>Data Gunung (Master)</option>
                     </select>
                 </div>
-
                 <div class="col-md-3">
                     <label class="fw-bold mb-1">Dari Tanggal</label>
                     <input type="date" name="tgl_a" class="form-control" value="<?= $tgl_a; ?>">
@@ -90,7 +96,6 @@ $stmt->execute();
                     <label class="fw-bold mb-1">Sampai Tanggal</label>
                     <input type="date" name="tgl_b" class="form-control" value="<?= $tgl_b; ?>">
                 </div>
-
                 <div class="col-md-3 d-flex gap-2">
                     <button type="submit" class="btn btn-primary w-100"><i class="fa-solid fa-filter"></i> Tampilkan</button>
                     <a href="cetak_laporan.php?tipe=<?= $tipe; ?>&tgl_a=<?= $tgl_a; ?>&tgl_b=<?= $tgl_b; ?>" target="_blank" class="btn btn-danger w-100">
@@ -101,7 +106,7 @@ $stmt->execute();
         </div>
     </div>
 
-    <div class="card border-0 shadow-sm rounded-4">
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
         <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
             <h5 class="fw-bold mb-0 text-success"><?= $judul_laporan; ?></h5>
             <small class="text-muted">Periode: <?= date('d M Y', strtotime($tgl_a)); ?> - <?= date('d M Y', strtotime($tgl_b)); ?></small>
@@ -117,7 +122,7 @@ $stmt->execute();
                                 <th>Invoice</th>
                                 <th>Pemesan</th>
                                 <th>Status</th>
-                                <th class="text-end">Nominal</th>
+                                <th class="text-end">Nominal Masuk</th>
                             <?php elseif($tipe == 'jadwal'): ?>
                                 <th>Tujuan</th>
                                 <th>Tgl Berangkat</th>
@@ -159,7 +164,7 @@ $stmt->execute();
                                 <td><?= date('d/m/Y', strtotime($row['tanggal_booking'])); ?></td>
                                 <td class="font-monospace">#<?= $row['kode_booking']; ?></td>
                                 <td><?= $row['nama_lengkap']; ?></td>
-                                <td><span class="badge bg-secondary"><?= $row['status_bayar']; ?></span></td>
+                                <td><span class="badge bg-success">LUNAS</span></td>
                                 <td class="text-end fw-bold">Rp <?= number_format($row['total_bayar']); ?></td>
                             
                             <?php elseif($tipe == 'jadwal'): ?>
@@ -192,7 +197,8 @@ $stmt->execute();
                         <?php 
                             } 
                         } else {
-                            echo "<tr><td colspan='6' class='text-center py-4'>Tidak ada data pada periode ini.</td></tr>";
+                            $colspan = ($tipe == 'transaksi') ? 6 : 5;
+                            echo "<tr><td colspan='$colspan' class='text-center py-4 text-muted'>Tidak ada data pada periode ini.</td></tr>";
                         }
                         ?>
                     </tbody>
@@ -200,16 +206,55 @@ $stmt->execute();
                     <?php if($tipe == 'transaksi'): ?>
                     <tfoot class="table-light">
                         <tr>
-                            <td colspan="5" class="text-end fw-bold">TOTAL PENDAPATAN</td>
+                            <td colspan="5" class="text-end fw-bold">TOTAL PENDAPATAN BERSIH</td>
                             <td class="text-end fw-bold text-success fs-5">Rp <?= number_format($total_uang); ?></td>
                         </tr>
                     </tfoot>
                     <?php endif; ?>
-
                 </table>
             </div>
         </div>
     </div>
+
+    <?php if($tipe == 'transaksi' && !empty($rekap_lain)): ?>
+    <div class="card border-0 shadow-sm rounded-4 mb-4 border-start border-4 border-warning">
+        <div class="card-header bg-white py-3">
+            <h6 class="fw-bold mb-0 text-warning"><i class="fa-solid fa-circle-exclamation me-2"></i> Rekap Transaksi Belum Selesai / Batal</h6>
+            <small class="text-muted">Data ini tidak dihitung dalam total pendapatan.</small>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Status Transaksi</th>
+                            <th class="text-center">Jumlah Transaksi</th>
+                            <th class="text-end">Potensi Nominal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach($rekap_lain as $lain): ?>
+                        <tr>
+                            <td>
+                                <?php if($lain['status_bayar'] == 'pending'): ?>
+                                    <span class="badge bg-warning text-dark">PENDING</span>
+                                <?php elseif($lain['status_bayar'] == 'batal'): ?>
+                                    <span class="badge bg-danger">BATAL</span>
+                                <?php else: ?>
+                                    <span class="badge bg-secondary"><?= strtoupper($lain['status_bayar']); ?></span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="text-center fw-bold"><?= $lain['jumlah']; ?></td>
+                            <td class="text-end text-muted">Rp <?= number_format($lain['potensi']); ?></td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+
 </div>
 
 <?php include 'include/footer.php'; ?>

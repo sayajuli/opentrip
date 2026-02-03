@@ -1,5 +1,8 @@
 <?php
 session_start();
+if (!isset($_SESSION['status']) || $_SESSION['role'] != 'user') {
+    header("Location: ../login.php"); exit;
+}
 require '../config/koneksi.php';
 include 'include/header.php';
 include 'include/navbar.php';

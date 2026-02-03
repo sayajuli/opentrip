@@ -18,11 +18,10 @@ if (isset($_POST['btn_upload'])) {
         if (!is_dir($path)) mkdir($path, 0777, true);
 
         if (move_uploaded_file($tmp_foto, $path . $foto_baru)) {
-            // Update status ke 'menunggu_verifikasi'
+            
             $sql = "UPDATE transaksi SET bukti_bayar = ?, status_bayar = 'menunggu_verifikasi' WHERE id_transaksi = ?";
             $conn->prepare($sql)->execute([$foto_baru, $id]);
             
-            // Redirect Success
             header("Location: ../user/index.php?pesan=sukses_upload");
         }
     } else {

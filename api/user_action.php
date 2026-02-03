@@ -61,20 +61,20 @@ elseif ($act == 'review') {
         // Validasi Ekstensi Gambar
         $allowed = ['jpg', 'jpeg', 'png', 'webp'];
         if(in_array(strtolower($ext), $allowed)) {
-            // Rename file biar unik: REV_IDUser_Waktu.jpg
+            
             $nama_foto = "REV_" . $id_user . "_" . date('YmdHis') . "." . $ext;
             $path      = "../uploads/review/";
     
-            // Buat folder review kalo belum ada
+            
             if (!is_dir($path)) mkdir($path, 0777, true);
     
-            // Pindahkan file
+            
             move_uploaded_file($tmp_foto, $path . $nama_foto);
         }
     }
 
     try {
-        // Query Insert (Sesuai struktur tabel Abang: id_transaksi, id_gunung, rating, komentar, foto)
+        // Query Insert
         $sql = "INSERT INTO reviews (id_user, id_gunung, id_transaksi, rating, komentar, foto) 
                 VALUES (?, ?, ?, ?, ?, ?)";
         

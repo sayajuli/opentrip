@@ -5,8 +5,8 @@ require '../config/koneksi.php';
 if (!isset($_SESSION['status']) || $_SESSION['role'] != 'user') {
     header("Location: ../login.php"); exit;
 }
-include 'include/header.php'; // Header HTML biasa
-include 'include/navbar.php'; // Navbar Responsive tadi
+include 'include/header.php'; 
+include 'include/navbar.php'; 
 
 $id_user = $_SESSION['id_user'];
 

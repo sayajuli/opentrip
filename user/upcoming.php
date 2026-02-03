@@ -1,12 +1,15 @@
 <?php
 session_start();
+if (!isset($_SESSION['status']) || $_SESSION['role'] != 'user') {
+    header("Location: ../login.php"); exit;
+}
 require '../config/koneksi.php';
 include 'include/header.php';
 include 'include/navbar.php';
 
 $id_user = $_SESSION['id_user'];
 
-// Query: Ambil Trip yg LUNAS dan (Belum Lewat Tanggal ATAU Hari Ini)
+// Query: Ambil Trip yg LUNAS dan Belum Berangkat
 $sql = "SELECT t.*, j.tanggal_berangkat, j.tanggal_selesai, g.nama_gunung, g.gambar 
         FROM transaksi t
         JOIN jadwal j ON t.id_jadwal = j.id_jadwal
@@ -30,20 +33,16 @@ $stmt = $conn->query($sql);
     <?php else: ?>
         <div class="row g-4">
             <?php while($row = $stmt->fetch(PDO::FETCH_ASSOC)) { 
-                // --- 1. DEFINISI VARIABEL DULU (INI YANG BIKIN ERROR KEMARIN) ---
                 $start = new DateTime($row['tanggal_berangkat']);
                 $now   = new DateTime();
                 
-                // Reset jam biar hitungan hari akurat (komparasi tanggal doang)
                 $start->setTime(0,0,0);
                 $now->setTime(0,0,0);
                 
                 $diff  = $now->diff($start);
                 $days  = $diff->days;
-                $is_today = ($start == $now); // Cek apakah tanggalnya sama persis
+                $is_today = ($start == $now);
 
-                // --- 2. LOGIC H-14 (BARU BISA DIPAKE SETELAH DIDEFINISI) ---
-                // Syarat Cancel: Tanggal Berangkat > Hari Ini DAN Sisa Waktu >= 14 Hari
                 $bisa_cancel = ($start > $now && $days >= 14);
             ?>
             <div class="col-md-6 col-lg-4">
@@ -110,7 +109,6 @@ $stmt = $conn->query($sql);
             confirmButtonText: 'Ya, Batalkan'
         }).then((result) => {
             if (result.isConfirmed) {
-                // Buat Form Invisible buat kirim POST
                 let form = document.createElement('form');
                 form.action = '../api/user_action.php?act=cancel';
                 form.method = 'POST';

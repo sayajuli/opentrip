@@ -18,7 +18,6 @@ if (isset($_POST['update_status'])) {
         $stmt = $conn->prepare("UPDATE transaksi SET status_bayar = ? WHERE id_transaksi = ?");
         $stmt->execute([$status_baru, $id_transaksi]);
         
-        // Redirect balik dengan pesan sukses
         echo "<script>alert('Status berhasil diubah menjadi: ".strtoupper($status_baru)."'); window.location='transaksi_detail.php?id=$id_transaksi';</script>";
     } catch (PDOException $e) {
         echo "<script>alert('Error: ".$e->getMessage()."');</script>";

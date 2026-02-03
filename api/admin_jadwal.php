@@ -43,13 +43,12 @@ elseif (isset($_POST['btn_update'])) {
 // --- BATALKAN TRIP (Update Status & Alasan) ---
 elseif (isset($_GET['batal'])) {
     $id = $_GET['batal'];
-    $alasan = $_GET['alasan']; // Diambil dari input SweetAlert
+    $alasan = $_GET['alasan'];
 
     try {
         $sql = "UPDATE jadwal SET status_trip='batal', alasan_batal=? WHERE id_jadwal=?";
         $conn->prepare($sql)->execute([$alasan, $id]);
         
-        // TODO Nanti: Kalau ada user yg udah bayar, bisa kirim notif/refund disini
         
         header("Location: ../admin/jadwal.php?pesan=dibatal");
     } catch (PDOException $e) { die($e->getMessage()); }

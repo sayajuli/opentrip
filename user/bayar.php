@@ -15,7 +15,7 @@ if (!isset($_GET['id'])) {
 $id_transaksi = $_GET['id'];
 $id_user = $_SESSION['id_user'];
 
-// 3. Ambil Data Transaksi (Amankan query biar cuma pemilik yg bisa liat)
+// 3. Ambil Data Transaksi
 $sql = "SELECT t.*, j.harga, j.tanggal_berangkat, g.nama_gunung, g.gambar 
         FROM transaksi t
         JOIN jadwal j ON t.id_jadwal = j.id_jadwal
@@ -26,13 +26,13 @@ $stmt = $conn->prepare($sql);
 $stmt->execute([$id_transaksi, $id_user]);
 $d = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// Kalau data gak ketemu (atau user iseng ganti ID di URL)
+// Kalau data gak ketemu
 if (!$d) { 
     echo "<script>alert('Transaksi tidak ditemukan!'); window.location='payment.php';</script>"; 
     exit; 
 }
 
-// 4. Ambil Daftar Rekening Admin
+// Ambil Daftar Rekening Admin
 $rekening = $conn->query("SELECT * FROM rekening");
 
 // Panggil Tampilan Baru

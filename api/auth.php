@@ -2,7 +2,7 @@
 session_start();
 require '../config/koneksi.php';
 
-// --- LOGIKA LOGIN (Tidak berubah banyak, tetap pakai Username) ---
+// --- LOGIKA LOGIN  ---
 if (isset($_POST['btn_login'])) {
     $username = trim($_POST['username']);
     $password = trim($_POST['password']);
@@ -34,7 +34,7 @@ if (isset($_POST['btn_login'])) {
     }
 }
 
-// --- LOGIKA REGISTER (Update: Tambah Email & No HP) ---
+// --- LOGIKA REGISTER ---
 elseif (isset($_POST['btn_register'])) {
     
     // 1. Sanitasi & Tangkap Input
@@ -90,8 +90,6 @@ elseif (isset($_POST['btn_register'])) {
         }
 
     } catch (PDOException $e) {
-        // ERROR HANDLING: Jangan die($e), tapi redirect dengan pesan error
-        // error_log($e->getMessage()); // Bisa diaktifkan buat log server
         header("Location: ../register.php?pesan=gagal_sistem"); 
         exit();
     }

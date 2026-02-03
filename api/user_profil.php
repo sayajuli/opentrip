@@ -24,14 +24,11 @@ if (isset($_POST['btn_update'])) {
         $stmt = $conn->prepare($sql);
         $stmt->execute($params);
 
-        // --- UPDATE SESSION BIAR LANGSUNG BERUBAH ---
-        // Ini penting biar nama di pojok kanan atas navbar langsung ganti
         $_SESSION['nama'] = $nama; 
         
         header("Location: ../user/profil.php?pesan=sukses_profil");
 
     } catch (PDOException $e) {
-        // Balikin ke profil kalau error
         die("Error: " . $e->getMessage());
     }
 } else {

@@ -6,7 +6,7 @@ require '../config/koneksi.php';
 if (isset($_POST['btn_simpan'])) {
     $nama = $_POST['nama'];
     $user = $_POST['username'];
-    $pass = password_hash($_POST['password'], PASSWORD_DEFAULT); // Hash
+    $pass = password_hash($_POST['password'], PASSWORD_DEFAULT); 
     $email = $_POST['email'];
     $hp = $_POST['hp'];
     $role = $_POST['role'];
@@ -34,7 +34,7 @@ elseif (isset($_POST['btn_update'])) {
     $hp = $_POST['hp'];
     $role = $_POST['role'];
     
-    // Logic Password: Kalau kosong, jangan diupdate
+    // Logic Password
     if(!empty($_POST['password'])) {
         $pass = password_hash($_POST['password'], PASSWORD_DEFAULT);
         $sql = "UPDATE users SET nama_lengkap=?, email=?, no_hp=?, role=?, password=? WHERE id_user=?";

@@ -4,7 +4,7 @@ require '../config/koneksi.php';
 include 'include/header.php';
 include 'include/navbar.php';
 
-// Nomor WA Admin (Ganti dengan nomor asli, format 628xxx tanpa +)
+// Nomor WA Admin
 $no_wa = "6281234567890"; 
 $pesan_default = "Halo Admin Jerry OpenTrip, saya butuh bantuan mengenai...";
 $link_wa = "https://wa.me/$no_wa?text=" . urlencode($pesan_default);

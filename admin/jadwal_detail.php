@@ -5,34 +5,48 @@ include 'include/sidebar.php';
 require '../config/koneksi.php';
 
 $id_jadwal = $_GET['id'];
+$status_filter = isset($_GET['status']) ? $_GET['status'] : 'semua';
 
 // 1. Ambil Data Jadwal & Gunung
 $sql_jadwal = "SELECT jadwal.*, gunung.nama_gunung, users.nama_lengkap as guide 
-               FROM jadwal 
-               JOIN gunung ON jadwal.id_gunung = gunung.id_gunung
-               LEFT JOIN users ON jadwal.id_penjaga = users.id_user 
-               WHERE jadwal.id_jadwal = ?";
+                FROM jadwal 
+                JOIN gunung ON jadwal.id_gunung = gunung.id_gunung
+                LEFT JOIN users ON jadwal.id_penjaga = users.id_user 
+                WHERE jadwal.id_jadwal = ?";
 $stmt = $conn->prepare($sql_jadwal);
 $stmt->execute([$id_jadwal]);
 $d = $stmt->fetch(PDO::FETCH_ASSOC);
 
 if(!$d) { echo "<script>window.location='jadwal.php';</script>"; exit; }
 
-// 2. Hitung Peserta Lunas
+// 2. Hitung Peserta Lunas (Untuk Progress Bar, Tetap Lunas only)
 $stmt_count = $conn->prepare("SELECT SUM(jumlah_peserta) FROM transaksi WHERE id_jadwal = ? AND status_bayar = 'lunas'");
 $stmt_count->execute([$id_jadwal]);
 $terisi = $stmt_count->fetchColumn() ?: 0;
 $sisa = $d['kuota_maks'] - $terisi;
 
-// 3. Ambil Daftar Peserta (Join Transaksi & Users)
-// Kita ambil semua status (Pending/Lunas) biar admin tau siapa calon peserta
+// 3. LOGIC FILTER QUERY PESERTA
 $sql_peserta = "SELECT transaksi.*, users.nama_lengkap, users.no_hp, users.email 
                 FROM transaksi 
                 JOIN users ON transaksi.id_user = users.id_user 
-                WHERE transaksi.id_jadwal = ? 
-                ORDER BY transaksi.status_bayar ASC, transaksi.tanggal_booking DESC";
+                WHERE transaksi.id_jadwal = :id ";
+
+// Tambahan filter status kalo bukan 'semua'
+if($status_filter != 'semua') {
+    $sql_peserta .= " AND transaksi.status_bayar = :status ";
+}
+
+$sql_peserta .= " ORDER BY transaksi.status_bayar ASC, transaksi.tanggal_booking DESC";
+
 $stmt_p = $conn->prepare($sql_peserta);
-$stmt_p->execute([$id_jadwal]);
+
+// Bind Param Dinamis
+$params = [':id' => $id_jadwal];
+if($status_filter != 'semua') {
+    $params[':status'] = $status_filter;
+}
+
+$stmt_p->execute($params);
 ?>
 
 <div class="content">
@@ -41,7 +55,7 @@ $stmt_p->execute([$id_jadwal]);
             <a href="jadwal.php" class="btn btn-outline-secondary btn-sm mb-2"><i class="fa-solid fa-arrow-left"></i> Kembali</a>
             <h3 class="fw-bold text-success">Manifest Peserta Trip</h3>
         </div>
-        <a href="cetak_jadwal.php?id=<?= $id_jadwal; ?>" target="_blank" class="btn btn-outline-danger fw-bold">
+        <a href="cetak_jadwal.php?id=<?= $id_jadwal; ?>&status=<?= $status_filter; ?>" target="_blank" class="btn btn-outline-danger fw-bold">
             <i class="fa-solid fa-file-pdf"></i> Download PDF
         </a>
     </div>
@@ -68,7 +82,6 @@ $stmt_p->execute([$id_jadwal]);
                 </div>
             </div>
         </div>
-        
         <div class="col-md-4">
             <div class="card border-0 shadow-sm rounded-4 h-100">
                 <div class="card-body text-center d-flex flex-column justify-content-center">
@@ -77,7 +90,7 @@ $stmt_p->execute([$id_jadwal]);
                         <?= $sisa; ?> <small class="fs-6 text-muted">/ <?= $d['kuota_maks']; ?></small>
                     </h1>
                     <div class="progress mt-2" style="height: 10px;">
-                        <?php $persen = ($terisi / $d['kuota_maks']) * 100; ?>
+                        <?php $persen = ($d['kuota_maks'] > 0) ? ($terisi / $d['kuota_maks']) * 100 : 0; ?>
                         <div class="progress-bar bg-success" role="progressbar" style="width: <?= $persen; ?>%"></div>
                     </div>
                     <small class="mt-2 text-muted"><?= $terisi; ?> Peserta Lunas</small>
@@ -87,9 +100,22 @@ $stmt_p->execute([$id_jadwal]);
     </div>
 
     <div class="card border-0 shadow-sm rounded-4">
-        <div class="card-header bg-white py-3">
+        <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
             <h5 class="fw-bold mb-0">Daftar Transaksi / Peserta</h5>
+            
+            <form method="GET" class="d-flex align-items-center">
+                <input type="hidden" name="id" value="<?= $id_jadwal; ?>">
+                <label class="me-2 fw-bold text-muted small">Filter Status:</label>
+                <select name="status" class="form-select form-select-sm w-auto border-success text-success fw-bold" onchange="this.form.submit()">
+                    <option value="semua" <?= $status_filter=='semua'?'selected':''; ?>>Semua Data</option>
+                    <option value="lunas" <?= $status_filter=='lunas'?'selected':''; ?>>✅ Lunas</option>
+                    <option value="pending" <?= $status_filter=='pending'?'selected':''; ?>>⏳ Pending</option>
+                    <option value="menunggu_verifikasi" <?= $status_filter=='menunggu_verifikasi'?'selected':''; ?>>🔍 Butuh Verifikasi</option>
+                    <option value="batal" <?= $status_filter=='batal'?'selected':''; ?>>❌ Batal / Tolak</option>
+                </select>
+            </form>
         </div>
+
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover align-middle mb-0">
@@ -141,7 +167,7 @@ $stmt_p->execute([$id_jadwal]);
                             </td>
                         </tr>
                         <?php } } else { ?>
-                            <tr><td colspan="7" class="text-center py-5 text-muted">Belum ada yang booking trip ini.</td></tr>
+                            <tr><td colspan="7" class="text-center py-5 text-muted">Data tidak ditemukan untuk filter ini.</td></tr>
                         <?php } ?>
                     </tbody>
                 </table>
@@ -149,13 +175,5 @@ $stmt_p->execute([$id_jadwal]);
         </div>
     </div>
 </div>
-
-<style>
-    @media print {
-        .sidebar-admin, .navbar, .btn, .no-print { display: none !important; }
-        .content-admin { margin-left: 0 !important; padding: 0 !important; }
-        .card { border: 1px solid #ddd !important; box-shadow: none !important; }
-    }
-</style>
 
 <?php include 'include/footer.php'; ?>

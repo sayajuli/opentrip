@@ -4,6 +4,7 @@ require 'config/koneksi.php';
 
 // Validasi ID
 if (!isset($_GET['id'])) { header("Location: index.php"); exit; }
+
 $id = $_GET['id'];
 $id_user = isset($_SESSION['id_user']) ? $_SESSION['id_user'] : 0;
 
@@ -31,15 +32,12 @@ $now   = new DateTime();
 $durasi = $start->diff($end)->days + 1;
 $selisih_hari = $now->diff($start)->days;
 
-// Logic Status
 $is_h10 = ($start > $now && $selisih_hari <= 10); 
 $is_lewat = ($start < $now);
 
 // 3. Cek User Sudah Booking?
 $sudah_booking = false;
 if($id_user > 0) {
-    // UPDATE: Tambahkan 'batal' ke dalam pengecualian
-    // Jadi kalau statusnya 'tolak' ATAU 'batal', dianggap belum booking.
     $cek_book = $conn->prepare("SELECT id_transaksi FROM transaksi 
                                 WHERE id_user = ? 
                                 AND id_jadwal = ? 
@@ -52,7 +50,7 @@ if($id_user > 0) {
     }
 }
 
-// 4. Ambil Review Gunung Ini (Termasuk Fotonya)
+// 4. Ambil Review Gunung
 $sql_rev = "SELECT r.*, u.nama_lengkap 
             FROM reviews r JOIN users u ON r.id_user = u.id_user 
             WHERE r.id_gunung = ? 

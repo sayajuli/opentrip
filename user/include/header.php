@@ -1,15 +1,3 @@
-<?php
-session_start();
-// --- VALIDASI LOGIN (SATPAM) ---
-// Cek apakah belum login ATAU role-nya bukan user?
-if (!isset($_SESSION['status']) || $_SESSION['status'] != 'login' || $_SESSION['role'] != 'user') {
-    // Kalau belum, tendang balik ke halaman login
-    header("Location: ../login.php?pesan=belum_login");
-    exit; // PENTING: Stop eksekusi script di bawahnya
-}
-
-?>
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -31,10 +19,10 @@ if (!isset($_SESSION['status']) || $_SESSION['status'] != 'login' || $_SESSION['
         /* SETUP FONT GLOBAL */
         body { 
             font-family: 'Poppins', sans-serif; 
-            background-color: #f8f9fa; /* Abu sangat muda biar gak sakit mata */
+            background-color: #f8f9fa; 
         }
 
-        /* TOMBOL ALAM (Hijau Khas Jerry Trip) */
+        /* TOMBOL ALAM  */
         .btn-alam { 
             background-color: #198754; 
             color: white; 
@@ -65,7 +53,6 @@ if (!isset($_SESSION['status']) || $_SESSION['status'] != 'login' || $_SESSION['
 
 <?php
 // AUTO UPDATE STATUS
-// Setiap user buka halaman, sistem cek apakah ada trip yg udah lewat tanggal / penuh
 if(file_exists('../api/auto_update.php')) {
     include '../api/auto_update.php';
 }

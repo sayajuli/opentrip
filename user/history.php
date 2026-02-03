@@ -1,13 +1,14 @@
 <?php
 session_start();
+
+if (!isset($_SESSION['status']) || $_SESSION['role'] != 'user') {
+    header("Location: ../login.php"); exit;
+}
 require '../config/koneksi.php';
 include 'include/header.php';
 include 'include/navbar.php';
 
 $id_user = $_SESSION['id_user'];
-
-// --- PERBAIKAN ERROR COLUMN NOT FOUND ---
-// Masalahnya tadi ada di "j.status_jadwal". Harusnya "j.status_trip".
 
 $sql = "SELECT t.*, j.id_gunung, j.status_trip as status_jadwal, j.alasan_batal, j.tanggal_berangkat, g.nama_gunung,
         (SELECT COUNT(*) FROM reviews r WHERE r.id_transaksi = t.id_transaksi) as sudah_review
@@ -16,16 +17,12 @@ $sql = "SELECT t.*, j.id_gunung, j.status_trip as status_jadwal, j.alasan_batal,
         JOIN gunung g ON j.id_gunung = g.id_gunung
         WHERE t.id_user = $id_user 
         AND (
-            -- Case 1: Trip Sukses (WAJIB LUNAS)
-            -- Ganti j.status_jadwal jadi j.status_trip
             (t.status_bayar = 'lunas' AND (j.tanggal_berangkat < CURDATE() OR j.status_trip = 'selesai'))
             
             OR 
             
-            -- Case 2: Trip Batal (User Cancel atau Admin Cancel Trip)
             (t.status_bayar = 'batal' OR j.status_trip = 'batal')
         )
-        -- Filter tambahan biar Pending bener-bener minggat
         AND t.status_bayar NOT IN ('pending', 'menunggu_verifikasi', 'tolak')
         
         GROUP BY t.id_transaksi

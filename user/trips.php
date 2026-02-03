@@ -1,5 +1,8 @@
 <?php
 session_start();
+if (!isset($_SESSION['status']) || $_SESSION['role'] != 'user') {
+    header("Location: ../login.php"); exit;
+}
 require '../config/koneksi.php';
 include 'include/header.php';
 include 'include/navbar.php';
@@ -24,7 +27,6 @@ $stmt = $conn->query($sql);
 $lokasi_opt = $conn->query("SELECT DISTINCT lokasi FROM gunung");
 
 // 2. QUERY PORTOFOLIO (TRIP SELESAI)
-// Kita ambil trip yang sudah selesai buat dipamerin
 $sql_hist = "SELECT j.*, g.nama_gunung, g.gambar, g.lokasi 
              FROM jadwal j JOIN gunung g ON j.id_gunung = g.id_gunung 
              WHERE j.status_trip = 'selesai' 
@@ -109,7 +111,7 @@ $stmt_hist = $conn->query($sql_hist);
 
 <style>
     .grayscale { filter: grayscale(100%); transition: .3s; }
-    .card-hover:hover .grayscale { filter: grayscale(0%); } /* Pas dihover warnanya balik */
+    .card-hover:hover .grayscale { filter: grayscale(0%); }
     .opacity-75 { opacity: 0.75; }
 </style>
 

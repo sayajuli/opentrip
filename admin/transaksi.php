@@ -12,17 +12,16 @@ $halaman_awal = ($halaman > 1) ? ($halaman * $batas) - $batas : 0;
 $keyword     = isset($_GET['cari']) ? $_GET['cari'] : "";
 
 // --- 2. BUILD QUERY ---
-// Base Where Clause (Gabungin Logic Tab + Search)
 $where = "WHERE 1=1";
 $params = [];
 
 // A. Filter Berdasarkan Tab
 if($status_view == 'menunggu_verifikasi') {
     $where .= " AND t.status_bayar IN ('menunggu_verifikasi', 'pending')";
-    $order = "ORDER BY t.tanggal_booking ASC"; // Prioritas yang lama
+    $order = "ORDER BY t.tanggal_booking ASC"; 
 } else {
     $where .= " AND t.status_bayar IN ('lunas', 'tolak', 'batal')";
-    $order = "ORDER BY t.tanggal_booking DESC"; // Yang baru di atas
+    $order = "ORDER BY t.tanggal_booking DESC"; 
 }
 
 // B. Filter Search (Invoice / Nama)

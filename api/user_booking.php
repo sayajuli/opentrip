@@ -1,6 +1,6 @@
 <?php
 session_start();
-require '../config/koneksi.php'; // Pastikan path koneksi bener
+require '../config/koneksi.php'; 
 
 // 1. Cek Login
 if (!isset($_SESSION['status']) || $_SESSION['status'] != 'login') {
@@ -12,8 +12,8 @@ if (!isset($_SESSION['status']) || $_SESSION['status'] != 'login') {
 if (isset($_POST['btn_booking'])) {
     $id_user   = $_SESSION['id_user'];
     $id_jadwal = $_POST['id_jadwal'];
-    $jumlah    = (int) $_POST['jumlah_peserta']; // Pastikan integer
-    $harga     = (int) $_POST['harga_satuan'];   // Pastikan integer
+    $jumlah    = (int) $_POST['jumlah_peserta']; 
+    $harga     = (int) $_POST['harga_satuan'];   
     
     // Hitung Total
     $total_bayar = $jumlah * $harga;
@@ -42,8 +42,7 @@ if (isset($_POST['btn_booking'])) {
         
         $stmt_insert = $conn->prepare($sql);
         $stmt_insert->execute([$kode, $id_user, $id_jadwal, $jumlah, $total_bayar]);
-
-        // Ambil ID Transaksi barusan
+        
         $id_transaksi = $conn->lastInsertId();
 
         // 6. Redirect ke Halaman Bayar
@@ -53,7 +52,6 @@ if (isset($_POST['btn_booking'])) {
         die("Error Booking: " . $e->getMessage());
     }
 } else {
-    // Kalau akses langsung tanpa klik tombol
     header("Location: ../index.php");
 }
 ?>

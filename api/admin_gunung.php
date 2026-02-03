@@ -16,13 +16,11 @@ if (isset($_POST['btn_simpan'])) {
 
     if (move_uploaded_file($tmp_foto, $path)) {
         try {
-            // SQL INSERT (Tanpa Harga)
+            // SQL INSERT
             $sql = "INSERT INTO gunung (nama_gunung, deskripsi, lokasi, gambar) 
                     VALUES (:nama, :desc, :lokasi, :gambar)";
             
             $stmt = $conn->prepare($sql);
-            
-            // Eksekusi (Pastikan jumlah array pas: 4 data)
             $stmt->execute([
                 ':nama'   => $nama, 
                 ':desc'   => $desc, 
@@ -47,10 +45,8 @@ elseif (isset($_POST['btn_update'])) {
     
     // Cek apakah user upload gambar baru?
     if ($_FILES['gambar']['error'] === 4) {
-        // Kalau ga upload, pake gambar lama
         $foto_final = $gambar_lama;
     } else {
-        // Kalau upload, proses upload gambar baru
         $foto      = $_FILES['gambar']['name'];
         $tmp_foto  = $_FILES['gambar']['tmp_name'];
         $foto_final = date('dmYHis') . '_' . $foto;
@@ -58,14 +54,13 @@ elseif (isset($_POST['btn_update'])) {
         
         move_uploaded_file($tmp_foto, $path);
         
-        // Hapus gambar lama biar hemat storage
         if(file_exists("../uploads/" . $gambar_lama)) {
             unlink("../uploads/" . $gambar_lama);
         }
     }
 
     try {
-        // SQL UPDATE (Tanpa Harga)
+        // SQL UPDATE
         $sql = "UPDATE gunung SET 
                 nama_gunung = :nama, 
                 deskripsi = :desc, 
@@ -75,7 +70,6 @@ elseif (isset($_POST['btn_update'])) {
         
         $stmt = $conn->prepare($sql);
         
-        // Eksekusi (Pastikan jumlah array pas: 5 data termasuk ID)
         $stmt->execute([
             ':nama'   => $nama, 
             ':desc'   => $desc, 

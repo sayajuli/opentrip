@@ -5,7 +5,7 @@ if (!isset($_SESSION['status']) || $_SESSION['role'] != 'penjaga') {
     exit("Akses Ditolak");
 }
 
-require('../fpdf/fpdf.php'); // Pastikan path fpdf benar
+require('../fpdf/fpdf.php'); 
 require('../config/koneksi.php');
 
 $id_jadwal = $_GET['id'];
@@ -64,7 +64,7 @@ $pdf->Cell(10,10,'No',1,0,'C',true);
 $pdf->Cell(70,10,'Nama Peserta',1,0,'L',true);
 $pdf->Cell(40,10,'No. HP',1,0,'C',true);
 $pdf->Cell(20,10,'Pax',1,0,'C',true);
-$pdf->Cell(50,10,'Ket / Absen',1,1,'C',true); // Kolom kosong buat checklist manual
+$pdf->Cell(50,10,'Ket / Absen',1,1,'C',true);
 
 // TABEL ISI
 $pdf->SetFont('Arial','',10);
@@ -76,7 +76,7 @@ while($p = $stmt_p->fetch(PDO::FETCH_ASSOC)) {
     $pdf->Cell(70,10, substr($p['nama_lengkap'], 0, 35),1,0,'L');
     $pdf->Cell(40,10, $p['no_hp'],1,0,'C');
     $pdf->Cell(20,10, $p['jumlah_peserta'],1,0,'C');
-    $pdf->Cell(50,10, '',1,1,'C'); // Kosongin buat paraf/checklist
+    $pdf->Cell(50,10, '',1,1,'C'); 
     $total += $p['jumlah_peserta'];
 }
 

@@ -11,7 +11,6 @@ if (isset($conn)) {
         $conn->exec($sql_expired);
 
         // 2. [BARU] UPDATE STATUS 'TUTUP' (Jika HARI INI BERANGKAT)
-        // Biar ga ada yang booking pas hari H
         $sql_today = "UPDATE jadwal 
                       SET status_trip = 'tutup' 
                       WHERE tanggal_berangkat = CURDATE() 
@@ -31,7 +30,6 @@ if (isset($conn)) {
         $conn->exec($sql_full);
 
         // 3. (Opsional) BUKA LAGI KALO ADA YG BATAL
-        // Kalau kuota masih ada sisa, balikin jadi 'buka' (kecuali kalo udah lewat tanggal)
         $sql_reopen = "UPDATE jadwal j 
                        SET status_trip = 'buka' 
                        WHERE status_trip = 'tutup' 
@@ -45,8 +43,6 @@ if (isset($conn)) {
         $conn->exec($sql_reopen);
 
     } catch (PDOException $e) {
-        // Silent error (jangan tampilkan apa-apa biar user gak bingung)
-        // error_log($e->getMessage());
     }
 }
 ?>

@@ -67,8 +67,6 @@ $stmt->execute($params);
 $opt_gunung = $conn->query("SELECT * FROM gunung ORDER BY nama_gunung ASC");
 $opt_penjaga = $conn->query("SELECT * FROM users WHERE role='penjaga' ORDER BY nama_lengkap ASC");
 
-// (Kita butuh array gunung lagi buat dropdown filter, karena cursor $opt_gunung bakal abis dipake di modal)
-// Jadi kita fetchAll dulu biar bisa dipake berulang
 $list_gunung = $opt_gunung->fetchAll(PDO::FETCH_ASSOC);
 ?>
 

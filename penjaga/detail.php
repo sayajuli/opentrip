@@ -6,7 +6,7 @@ include 'include/header.php';
 $id_jadwal = $_GET['id'];
 $id_guide  = $_SESSION['id_user'];
 
-// 1. Ambil Info Jadwal (Validasi Guide)
+// 1. Ambil Info Jadwal 
 $sql = "SELECT j.*, g.nama_gunung, g.lokasi 
         FROM jadwal j JOIN gunung g ON j.id_gunung = g.id_gunung 
         WHERE j.id_jadwal = ? AND j.id_penjaga = ?";

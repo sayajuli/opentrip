@@ -2,15 +2,14 @@
 session_start();
 require 'config/koneksi.php';
 
-// 1. Query Trip Terbaru (Limit 3, Status Buka, Tanggal Belum Lewat)
+// Query Trip Terbaru
 $sql_trip = "SELECT j.*, g.nama_gunung, g.gambar, g.lokasi 
              FROM jadwal j JOIN gunung g ON j.id_gunung = g.id_gunung 
              WHERE j.status_trip = 'buka' AND j.tanggal_berangkat > CURDATE() 
              ORDER BY j.tanggal_berangkat ASC LIMIT 3";
 $stmt_trip = $conn->query($sql_trip);
 
-// 2. Query Review (Limit 5, Rating Tertinggi)
-// FIX: Hapus 'u.foto' karena tabel users tidak punya kolom foto profil
+// Query Review 
 $sql_rev = "SELECT r.*, u.nama_lengkap, g.nama_gunung 
             FROM reviews r 
             JOIN users u ON r.id_user = u.id_user 
@@ -24,7 +23,7 @@ $stmt_rev = $conn->query($sql_rev);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jerry OpenTrip - Jelajah Alam Bandung & Sekitarnya</title>
+    <title>Jerry OpenTrip - Jelajah Alam Indonesia</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -40,7 +39,7 @@ $stmt_rev = $conn->query($sql_rev);
         .navbar.scrolled .nav-link { color: #333 !important; }
         .navbar.scrolled .navbar-brand { color: #198754 !important; }
         .navbar.scrolled .navbar-toggler {
-            border-color: rgba(0,0,0,0.1); /* Kasih border tipis abu */
+            border-color: rgba(0,0,0,0.1);
         }
         .navbar.scrolled .navbar-toggler-icon {
             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%2833, 37, 41, 0.75%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
@@ -48,9 +47,8 @@ $stmt_rev = $conn->query($sql_rev);
 
         /* HERO PARALLAX */
         .hero-section {
-            /* Pastikan ada gambar bg-hero.jpg di assets/img/ atau ganti URL-nya */
             background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.3)), url('assets/img/bg.jpg');
-            background-attachment: fixed; /* Kunci Parallax */
+            background-attachment: fixed;
             background-position: center;
             background-repeat: no-repeat;
             background-size: cover;

@@ -12,7 +12,6 @@ if (!isset($_SESSION['status']) || $_SESSION['status'] != "login" || $_SESSION['
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>
       <?php 
-        // Jika $pageTitle ada isinya, tampilkan. Jika tidak, tampilkan Default.
         if(isset($pageTitle)){
             echo $pageTitle . " | Jerry OpenTRIP";
         } else {
@@ -35,35 +34,34 @@ if (!isset($_SESSION['status']) || $_SESSION['status'] != "login" || $_SESSION['
             .sidebar-admin {
                 width: 260px;
                 height: 100vh;
-                position: fixed; /* Nempel kiri terus */
+                position: fixed;
                 top: 0;
                 left: 0;
                 z-index: 1000;
                 overflow-y: auto;
             }
             .content {
-                margin-left: 260px; /* Dorong konten ke kanan biar ga ketutupan sidebar */
+                margin-left: 260px;
                 padding: 30px;
                 min-height: 100vh;
                 background-color: #f8f9fa;
             }
             .mobile-header {
-                display: none; /* Umpetin tombol toggle di laptop */
+                display: none; 
             }
         }
 
         /* Tampilan Mobile (Layar Kecil) */
         @media (max-width: 991.98px) {
             .sidebar-admin {
-                /* Biarkan Bootstrap Offcanvas yang ngatur (Hidden default) */
             }
             .content {
-                margin-left: 0; /* Full width */
+                margin-left: 0;
                 padding: 20px;
                 background-color: #f8f9fa;
             }
             .mobile-header {
-                display: block; /* Munculin tombol toggle */
+                display: block; 
                 background: white;
                 padding: 10px 20px;
                 box-shadow: 0 2px 5px rgba(0,0,0,0.1);
@@ -72,9 +70,8 @@ if (!isset($_SESSION['status']) || $_SESSION['status'] != "login" || $_SESSION['
             }
         }
 
-        /* Styling Sidebar Warna */
         .sidebar-admin {
-            background-color: var(--color-primary) !important; /* Hijau */
+            background-color: var(--color-primary) !important; 
             color: white;
             box-shadow: 4px 0 10px rgba(0,0,0,0.1);
         }
@@ -93,7 +90,7 @@ if (!isset($_SESSION['status']) || $_SESSION['status'] != "login" || $_SESSION['
         .sidebar-admin a:hover, .sidebar-admin a.active {
             background-color: rgba(255,255,255,0.2);
             color: white;
-            padding-left: 25px; /* Efek geser dikit */
+            padding-left: 25px; 
         }
     </style>
 </head>
