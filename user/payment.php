@@ -1,5 +1,11 @@
 <?php
 session_start();
+if (!isset($_SESSION['status']) || $_SESSION['status'] != 'login' || $_SESSION['role'] != 'user') {
+    // Kalau belum, tendang balik ke halaman login
+    header("Location: ../login.php?pesan=belum_login");
+    exit; // PENTING: Stop eksekusi script di bawahnya
+}
+
 require '../config/koneksi.php';
 include 'include/header.php';
 include 'include/navbar.php';
