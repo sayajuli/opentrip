@@ -1,15 +1,3 @@
-<?php
-session_start();
-// --- VALIDASI LOGIN (SATPAM) ---
-// Cek apakah belum login ATAU role-nya bukan user?
-if (!isset($_SESSION['status']) || $_SESSION['status'] != 'login' || $_SESSION['role'] != 'user') {
-    // Kalau belum, tendang balik ke halaman login
-    header("Location: ../login.php?pesan=belum_login");
-    exit; // PENTING: Stop eksekusi script di bawahnya
-}
-
-?>
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
