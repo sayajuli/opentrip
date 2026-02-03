@@ -24,6 +24,7 @@ $stmt = $conn->query($sql);
 $lokasi_opt = $conn->query("SELECT DISTINCT lokasi FROM gunung");
 
 // 2. QUERY PORTOFOLIO (TRIP SELESAI)
+// Kita ambil trip yang sudah selesai buat dipamerin
 $sql_hist = "SELECT j.*, g.nama_gunung, g.gambar, g.lokasi 
              FROM jadwal j JOIN gunung g ON j.id_gunung = g.id_gunung 
              WHERE j.status_trip = 'selesai' 
@@ -83,16 +84,21 @@ $stmt_hist = $conn->query($sql_hist);
 
     <div class="pt-4 border-top">
         <h4 class="fw-bold mb-3"><i class="fa-solid fa-award text-warning"></i> Galeri Petualangan Kami</h4>
-        <p class="text-muted mb-4">Trip yang telah sukses terlaksana.</p>
+        <p class="text-muted mb-4">Trip yang telah sukses terlaksana. Klik untuk melihat ulasan & dokumentasi.</p>
+        
         <div class="row g-4">
             <?php while($h = $stmt_hist->fetch(PDO::FETCH_ASSOC)) { ?>
             <div class="col-md-3 col-6">
-                <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden bg-light">
+                <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden bg-light card-hover position-relative">
                     <img src="../uploads/<?= $h['gambar']; ?>" class="card-img-top object-fit-cover grayscale" style="height: 150px;">
                     <div class="card-body p-3">
                         <h6 class="fw-bold mb-1"><?= $h['nama_gunung']; ?></h6>
-                        <small class="text-muted d-block mb-2"><i class="fa-solid fa-check-double text-success"></i> <?= date('d M Y', strtotime($h['tanggal_berangkat'])); ?></small>
+                        <small class="text-muted d-block mb-2">
+                            <i class="fa-solid fa-check-double text-success"></i> <?= date('d M Y', strtotime($h['tanggal_berangkat'])); ?>
+                        </small>
                         <span class="badge bg-secondary">Sukses</span>
+
+                        <a href="../detail.php?id=<?= $h['id_jadwal']; ?>" class="stretched-link"></a>
                     </div>
                 </div>
             </div>
@@ -101,5 +107,10 @@ $stmt_hist = $conn->query($sql_hist);
     </div>
 </div>
 
-<style>.grayscale { filter: grayscale(100%); } .opacity-75 { opacity: 0.75; }</style>
+<style>
+    .grayscale { filter: grayscale(100%); transition: .3s; }
+    .card-hover:hover .grayscale { filter: grayscale(0%); } /* Pas dihover warnanya balik */
+    .opacity-75 { opacity: 0.75; }
+</style>
+
 <?php include 'include/footer.php'; ?>
