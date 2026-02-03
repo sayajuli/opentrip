@@ -18,7 +18,6 @@ $filter_status = isset($_GET['status']) ? $_GET['status'] : "";
 $filter_gunung = isset($_GET['gunung']) ? $_GET['gunung'] : "";
 
 // --- 2. QUERY DINAMIS ---
-// Kita pakai WHERE 1=1 biar gampang nyambungin AND
 $where_clause = "WHERE 1=1";
 $params = [];
 

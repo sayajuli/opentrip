@@ -1,8 +1,17 @@
 <?php
 session_start();
+<<<<<<< HEAD
 if (!isset($_SESSION['status']) || $_SESSION['role'] != 'user') {
     header("Location: ../login.php"); exit;
 }
+=======
+if (!isset($_SESSION['status']) || $_SESSION['status'] != 'login' || $_SESSION['role'] != 'user') {
+    // Kalau belum, tendang balik ke halaman login
+    header("Location: ../login.php?pesan=belum_login");
+    exit; // PENTING: Stop eksekusi script di bawahnya
+}
+
+>>>>>>> 418c4562026a96cd4ca033bf5fee065c81a2cd23
 require '../config/koneksi.php';
 include 'include/header.php';
 include 'include/navbar.php';
